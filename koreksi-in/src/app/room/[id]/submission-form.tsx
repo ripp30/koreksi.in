@@ -1,0 +1,10 @@
+"use client";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { submitAssignment } from "@/app/actions/submit-assignment";
+export function SubmissionForm({roomCode,disabled}:{roomCode:string;disabled:boolean}){const router=useRouter();const[file,setFile]=useState<File|null>(null);const[message,setMessage]=useState("");const[isPending,startTransition]=useTransition();return <form className="mx-auto mt-10 max-w-[470px]" action={formData=>{setMessage("");startTransition(async()=>{try{const r=await submitAssignment(formData);if(r.ok){
+  router.push("/");
+  router.refresh();
+  return;
+}
+setMessage(`Tugas berhasil dikirim. ID: ${r.submissionId}`);setFile(null);}catch(e){setMessage(e instanceof Error?e.message:"Terjadi kesalahan.");}})}}><input type="hidden" name="room_code" value={roomCode}/><label className="mb-2 block text-xl">NIM</label><input name="student_nim" className="k-input" placeholder="Contoh : H1H026030" required disabled={disabled||isPending}/><label className="mb-2 mt-6 block text-xl">Nama Lengkap</label><input name="student_name" className="k-input" placeholder="Contoh : An Najmi" required disabled={disabled||isPending}/><label className="mt-8 flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-2xl bg-white px-5 text-center transition hover:bg-white/90"><span className="text-2xl text-[#2697e8]">{file?file.name:"Unggah File Anda"}</span><span className="mt-1 text-sm">Seret File atau Klik Untuk Memilih · Maks. {process.env.NEXT_PUBLIC_MAX_UPLOAD_MB||10} Mb</span><input name="file" type="file" accept="application/pdf" required className="hidden" disabled={disabled||isPending} onChange={e=>setFile(e.target.files?.[0]??null)}/></label><button disabled={disabled||isPending} className="k-button mt-8 w-full text-xl">{isPending?"Mengirim...":"Submit"}</button>{message&&<div className="mt-5 rounded-2xl border-2 border-white bg-white/50 p-4 text-center">{message}</div>}{disabled&&<div className="mt-4 text-center text-red-700">Room sudah tidak menerima submission.</div>}</form>}

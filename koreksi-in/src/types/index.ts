@@ -1,0 +1,3 @@
+export type AiRisk = "low" | "medium" | "high";
+export interface Room { id:string; room_code:string; title:string; description:string|null; deadline:string|null; status:"active"|"closed"|"draft"; question_text:string|null; answer_key_text:string|null; rubric_rules:string|null; }
+export interface Submission { id:string; room_id:string; student_name:string; student_nim:string; file_path:string; status:"submitted"|"processing"|"reviewed"; score:number|null; feedback:string|null; rubric_breakdown:unknown; ai_risk:AiRisk|null; created_at:string; similarity_score:number; ai_status:string|null; final_score:number|null; final_feedback:string|null; }

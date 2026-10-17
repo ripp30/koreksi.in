@@ -1,0 +1,2 @@
+import { mockRoom, mockSubmissions } from "@/lib/mock-data";
+export default function TestDbPage() { return <main className="min-h-screen p-10"><div className="mx-auto max-w-5xl rounded-3xl bg-white p-8"><h1 className="text-3xl font-bold">Frontend Mock Data Test</h1><pre className="mt-6 overflow-auto rounded-2xl bg-neutral-100 p-5 text-sm">{JSON.stringify({ room: mockRoom, submissions: mockSubmissions }, null, 2)}</pre></div></main>; }

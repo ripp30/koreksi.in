@@ -1,0 +1,49 @@
+{
+  "name": "Koreksi.in - Submission to AI Processing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "koreksi-submission",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook-submission",
+      "name": "Webhook Submission",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "webhookId": "koreksi-submission"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{$env.KOREKSI_PROCESS_URL}}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Content-Type", "value": "application/json" },
+            { "name": "x-koreksi-secret", "value": "={{$env.KOREKSI_CALLBACK_SECRET}}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{$json.body || $json}}",
+        "options": { "timeout": 120000 }
+      },
+      "id": "process-submission",
+      "name": "Trigger AI Processing",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [260, 0]
+    }
+  ],
+  "connections": {
+    "Webhook Submission": {
+      "main": [[{ "node": "Trigger AI Processing", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "koreksi-in-real-mvp"
+}

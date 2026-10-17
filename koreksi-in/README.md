@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Koreksi.in — Real Integration MVP
 
-## Getting Started
+Frontend Next.js + Supabase Auth/Database/Storage + n8n trigger + Gemini PDF evaluation.
 
-First, run the development server:
+## 1. Install
+
+```bash
+npm install
+```
+
+## 2. Environment
+
+Copy `.env.example` to `.env.local` and fill:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY` (server only)
+- `N8N_WEBHOOK_URL`
+- `N8N_WEBHOOK_SECRET`
+- `N8N_CALLBACK_SECRET`
+- `GEMINI_API_KEY`
+- `GEMINI_MODEL`
+
+## 3. Supabase
+
+Run `supabase-schema.sql` in Supabase SQL Editor. The current app uses table name `submissions` (not `submisiion`). Create/keep a private Storage bucket named `submissions`.
+
+Enable Google OAuth in Supabase Authentication > Providers > Google. Add your local callback URL:
+
+`http://localhost:3000/auth/callback`
+
+For production, use the production callback URL too.
+
+## 4. n8n
+
+Import `n8n-workflows/submission-pipeline.json`.
+
+Set n8n environment variables:
+
+- `KOREKSI_PROCESS_URL=https://YOUR_PUBLIC_KOREKSI_HOST/api/n8n/process`
+- `KOREKSI_CALLBACK_SECRET` = same value as Next.js `N8N_CALLBACK_SECRET`
+
+Set the workflow active and copy its production webhook URL into `N8N_WEBHOOK_URL`.
+
+If Next.js and n8n are both local, `N8N_WEBHOOK_URL` can point to the local n8n URL, but n8n must be able to reach the Next.js `/api/n8n/process` endpoint. For n8n Cloud, Next.js must be reachable over HTTPS (localhost is not reachable from n8n Cloud).
+
+## 5. Gemini
+
+The processing endpoint sends the uploaded PDF to Gemini and requests JSON containing suggested score, feedback, similarity score, AI risk and extracted text.
+
+## 6. Run
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Real flow
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Google login → Dashboard → Create Room → Supabase `rooms` + `rubrics` → Student Room Code → PDF upload to private Supabase Storage → `submissions` row → n8n webhook → `/api/n8n/process` → Gemini → `evaluations` + update `submissions` → Lecturer Review → Override/Approve → `final_grades` → XLSX export.

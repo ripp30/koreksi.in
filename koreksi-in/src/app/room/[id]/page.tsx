@@ -1,0 +1,5 @@
+import { notFound } from "next/navigation";
+import { SubmissionForm } from "./submission-form";
+import { Navbar } from "@/components/navbar";
+import { createSupabaseAdminClient } from "@/lib/supabase/server";
+export default async function StudentRoomPage({params}:{params:Promise<{id:string}>}){const {id}=await params;const admin=createSupabaseAdminClient();const {data:room}=await admin.from("rooms").select("id,room_code,title,description,deadline,status").eq("room_code",id.toUpperCase()).maybeSingle();if(!room)notFound();return <main className="min-h-screen pb-12"><Navbar/><div className="mx-auto mt-12 max-w-2xl px-4"><section className="k-panel p-8 md:p-12"><div className="text-center"><h1 className="text-4xl font-normal">Form Pengumpulan Tugas</h1><p className="mt-2 text-2xl">Masukan Identitas Anda</p><p className="mt-3 text-sm text-black/60">Room: {room.room_code} · {room.title}</p>{room.description&&<p className="mt-2 text-sm">{room.description}</p>}</div><SubmissionForm roomCode={room.room_code} disabled={room.status!=="active"}/></section></div></main>}

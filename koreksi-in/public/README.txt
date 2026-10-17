@@ -1,0 +1,1 @@
+Static assets/logo dapat diletakkan di folder ini. UI saat ini membuat logo Koreksi.in dengan CSS/React.
